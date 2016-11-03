@@ -2,6 +2,11 @@ use v6.c;
 
 use XSLT::Types;
 
+class xmlXPathCompExprPtr 	{ ... };
+class xmlDoc 				{ ... };
+class xmlNode 				{ ... };
+class xmlNodeSet 			{ ... };
+
 my $xml_support;
 {
 	$xml_node_support = (try require ::('XML::LibXML::Node')) !~~ Nil;
@@ -29,6 +34,21 @@ module XSLT::Utils {
 		XSLT_TRACE_TEMPLATES 		=	0b100000000000000,
 		XSLT_TRACE_KEYS 			=	0b1000000000000000,
 		XSLT_TRACE_VARIABLES 		=	0b10000000000000000
+	);
+
+	constant XSLT_TIMESTAMP_TICS_PER_SEC is export = 100000;
+
+	enum xsltDebugStatusCodes is export (
+	    XSLT_DEBUG_NONE = 0, 
+	    XSLT_DEBUG_INIT,
+	    XSLT_DEBUG_STEP,
+	    XSLT_DEBUG_STEPOUT,
+	    XSLT_DEBUG_NEXT,
+	    XSLT_DEBUG_STOP,
+	    XSLT_DEBUG_CONT,
+	    XSLT_DEBUG_RUN,
+	    XSLT_DEBUG_RUN_RESTART,
+	    XSLT_DEBUG_QUIT
 	);
 
 	sub xsltGetUTF8Char(Str $utf, int32 $len)
@@ -103,7 +123,12 @@ module XSLT::Utils {
 	}
 
 	sub xsltGetCNsProp($sheet, $node, $name, $ns) is export {
-		sub _xsltCGetNsProp(xsltStyleSheet $sheet, xmlNode $node, Str $name, Str $ns) 
+		sub _xsltCGetNsProp(
+			xsltStyleSheet $sheet, 
+			xmlNode $node, 
+			Str $name, 
+			Str $ns
+		) 
 			is native('xslt') 
 			is symbol ('xsltGetCNsProp')
 			returns Str
@@ -115,7 +140,7 @@ module XSLT::Utils {
 		_xsltGetCNsProp($sheet, $node, $name, $ns);
 	}
 
-	sub xsltPrintErrorContext($ctxt, $style, $node) {
+	sub xsltPrintErrorContext($ctxt, $style, $node) is export {
 		sub _xsltPrintErrorContext(
 			xsltTransformContext $ctxt, 
 			xsltStyleSheet $sheet, 
@@ -131,8 +156,12 @@ module XSLT::Utils {
 		_xsltPrintErrorContext($ctxt, $style, $node);
 	}
 
-	sub xsltMessage($ctxt, $node, $inst) {
-		sub _xsltMessage(xsltTransformContext $ctxt, xmlNode $node, xmlNode $inst)
+	sub xsltMessage($ctxt, $node, $inst) is export {
+		sub _xsltMessage(
+			xsltTransformContext $ctxt, 
+			xmlNode $node, 
+			xmlNode $inst
+		)
 			is native('xslt')
 			is symbol('xsltMessage')
 		{ * };
@@ -143,7 +172,7 @@ module XSLT::Utils {
 		_xsltMessage($ctxt, $node, $inst);
 	}
 
-	sub xsltDocumentSortFunction($list) {
+	sub xsltDocumentSortFunction($list) is export {
 		sub _xsltDocumentSortFunction(xmlNodeSet $list)
 			is native('xslt')
 			is symbol('xsltDocumentSortFunction')
@@ -161,7 +190,7 @@ module XSLT::Utils {
 	#xsltSetSortFunc(xsltSortFunc handler);
 	#xsltSetCtxtSortFunc(xsltTransformContextPtr ctxt, xsltSortFunc handler);
 
-	sub xsltDefaultSortFunction($ctxt, $nodes, $num) {
+	sub xsltDefaultSortFunction($ctxt, $nodes, $num) is export {
 		sub _xsltDefaultSortFunction(
 			xsltTransformContext $ctxt, 
 			xmlNode $node, int32 
@@ -177,7 +206,7 @@ module XSLT::Utils {
 		_xsltDefaultSortFunction($ctxt, $nodes, $num)
 	}
 
-	sub xsltDoSortFunction($ctxt, $nodes, $num) {
+	sub xsltDoSortFunction($ctxt, $nodes, $num) is export {
 		sub _xsltDoSortFunction(
 			xsltTransformContext $ctxt, 
 			xmlNode $node, int32 
@@ -193,7 +222,7 @@ module XSLT::Utils {
 		_xsltDotSortFunction($ctxt, $nodes, $num)
 	}
 
-	sub xsltComputeSortResult($ctxt, $node) {
+	sub xsltComputeSortResult($ctxt, $node) is export {
 		sub _xsltComputeSortResult(xsltTransformContext $ctxt, xmlNode $node)
 			is native('xslt')
 			is symbol('xsltComputeSortResult')
@@ -208,7 +237,7 @@ module XSLT::Utils {
 		_xsltComputeSortResult($ctxt, $node);
 	}
 
-	sub xsltSplitQName($dict, $name, @prefix) {
+	sub xsltSplitQName($dict, $name, @prefix) is export {
 		sub _xsltSplitQName(xmlDict $dict, Str $name, CArray[str] @prefix)
 			is native('xslt')
 			is symbol ('xsltSplitQName')
@@ -221,7 +250,7 @@ module XSLT::Utils {
 		_xsltSplitQName($dict, $name, $prefix);
 	}
 
-	sub xsltGetQNameURI($node, $name) {
+	sub xsltGetQNameURI($node, $name) is export {
 		sub _xsltGetQNameURI(xmlNode $node, Str $name)
 			is native('xslt')
 			is symbol('xsltGetQNameURI')
@@ -234,7 +263,7 @@ module XSLT::Utils {
 		_xsltGetQNameURI($node, $name);
 	}
 
-	sub xsltGetQNameURI2($style $node, $name) {
+	sub xsltGetQNameURI2($style $node, $name) is export {
 		sub _xsltGetQNameURI(xsltStyleSheet $style, xmlNode $node, Str $name)
 			is native('xslt')
 			is symbol('xsltGetQNameURI2')
@@ -247,7 +276,7 @@ module XSLT::Utils {
 		_xsltGetQNameURI($style $node, $name);
 	}
 
-	sub xsltSaveResultTo($buf, $result, $style) {
+	sub xsltSaveResultTo($buf, $result, $style) is export {
 		sub _xsltSaveResultTo(
 			xmlOutputBuffer $buf,
 			xmlDoc $result,
@@ -264,7 +293,7 @@ module XSLT::Utils {
 		_xsltSaveResulTo($buf, $result, $style);
 	}
 
-	sub xsltSaveResultToFilename($uri, $result, $style, $comp) {
+	sub xsltSaveResultToFilename($uri, $result, $style, $comp) is export {
 		sub _xsltSaveResultToFilename(
 			Str $uri,
 			xmlDoc $result,
@@ -300,7 +329,7 @@ module XSLT::Utils {
 	#	_xsltSaveResulToFile($file, $result, $style);
 	#}
 
-	sub xsltSaveResultToFd($fd, $result, $style) {
+	sub xsltSaveResultToFd($fd, $result, $style) is export {
 		sub _xsltSaveResultToFd(
 			int32 $fd,
 			xmlDoc $result,
@@ -317,7 +346,9 @@ module XSLT::Utils {
 		_xsltSaveResulToFd($fd, $result, $style);
 	}
 
-	sub xsltSaveResultToString($out is rw, $len is rw, $result, $style) {
+	sub xsltSaveResultToString($out is rw, $len is rw, $result, $style) 
+		is export
+	{
 		# cw: Another reason to do this via wrappers is so that we can 
 		#     do work for the caller, as in this case. 
 		#
@@ -330,11 +361,70 @@ module XSLT::Utils {
 			xmlDoc $result,
 			xsltStylesheet $style
 		)
+			is native('xslt')
+			is symbol('xsltSaveResultToString')
+			returns int32
+		{ * };
 
 		die "Function requires the XML::LibXML package"
 			unless $xml_node_support;
 
 		_xsltSaveResultToString($out, $len, $result, $style);
 	}
+
+	sub xsltXPathCompile($style, $str) is export {
+		sub _xsltXPathCompile(xsltStyleSheet $style, Str $str)
+			is native('xslt')
+			is symbol('xsltXPathCompile')
+			returns xsltXPathCompExpr
+		{ * };
+
+		die "Function requires the XML::LibXML::XPath module"
+			unless $xml_node_support;
+
+		_xsltXPathCompile($style, $str);
+	}
+
+	sub xsltXPathCompileFlags($style, $str, $flags) is export {
+		sub _xsltXPathCompileFlags(xsltStyleSheet $style, Str $str, int32 $flags)
+			is native('xslt')
+			is symbol('xsltXPathCompileFlags')
+			returns xmlXPathCompExpr
+		{ * };
+
+		die "Function requires the XML::LibXML::XPath module"
+			unless $xml_node_support;
+
+		_xsltXPathCompileFlags($style, $str, $flags);
+	}
+
+	# cw: TODO - C FILE Pointer
+	#sub xsltSaveProfiling(xsltTransformContext $ctxt, FILE $output)
+	#	is native('xslt')
+	#{ * };
+
+	sub xsltGetProfileInformation($ctxt) is export {
+		sub _xsltGetProfileInformation(xsltTransformContext $ctxt)
+			is native('xslt')
+			is symbol('xsltGetProfileInformation')
+			returns xmlDoc
+		{ * };
+
+		die "Function requires the XML::LibXML::Doc module"
+			unless $xml_node_support;
+
+		_xsltGetProfileInformation($ctxt);
+	}
+
+	sub xsltTimestamp() 
+		is native('xslt')
+		is export
+	{ * };
+
+	sub xsltCalibrateAdjust(int64 $delta)
+		is native('xslt')
+		is export
+	{ * };
+
 
 }
