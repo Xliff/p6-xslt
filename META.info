@@ -4,7 +4,12 @@
     "version" : "0.0.1",
     "authors" : [ "github:Xliff", "Clifton Wood" ],
     "description" : "Perl6 bindings for libxslt",
-    "depends" : [ "XML::L:ibXML" ],
+
+    # cw: XML::LibXML has not been released into the ecosystem, so can't 
+    #     be used as a dependency. Can still be installed via source.
+    "depends" : [ ],
+    #"depends" : [ "XML::LibXML" ],
+
     "build-depends" : [ ],
     "test-depends" : [ "Test::META" ],
     "provides" : {
