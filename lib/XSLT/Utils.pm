@@ -224,7 +224,7 @@ module XSLT::Utils {
 	sub xsltGetQNameURI($node, $name) {
 		sub _xsltGetQNameURI(xmlNode $node, Str $name)
 			is native('xslt')
-			is symbol ('xsltGetQNameURI')
+			is symbol('xsltGetQNameURI')
 			returns Str	
 		{ * };
 
@@ -232,6 +232,109 @@ module XSLT::Utils {
 			unless $xml_node_support;
 
 		_xsltGetQNameURI($node, $name);
+	}
+
+	sub xsltGetQNameURI2($style $node, $name) {
+		sub _xsltGetQNameURI(xsltStyleSheet $style, xmlNode $node, Str $name)
+			is native('xslt')
+			is symbol('xsltGetQNameURI2')
+			returns Str	
+		{ * };
+
+		die "Function requires the XML::LibXML::Node module"
+			unless $xml_node_support;
+
+		_xsltGetQNameURI($style $node, $name);
+	}
+
+	sub xsltSaveResultTo($buf, $result, $style) {
+		sub _xsltSaveResultTo(
+			xmlOutputBuffer $buf,
+			xmlDoc $result,
+			xsltStylesheet style
+		)
+			is native('xslt')
+			is symbol('xsltSaveResultTo')
+			returns int32
+		{ * };
+
+		die "Function requires the XML::LibXML package"
+			unless $xml_node_support;
+
+		_xsltSaveResulTo($buf, $result, $style);
+	}
+
+	sub xsltSaveResultToFilename($uri, $result, $style, $comp) {
+		sub _xsltSaveResultToFilename(
+			Str $uri,
+			xmlDoc $result,
+			xsltStylesheet $style,
+			int $comp
+		)
+			is native('xslt')
+			is symbol('xsltSaveResultToFilename')
+			returns int32
+		{ * };
+
+		die "Function requires the XML::LibXML package"
+			unless $xml_node_support;
+
+		_xsltSaveResulToFilename($buf, $result, $style, $comp);
+	}
+
+	# cw: TODO - C FILE pointers.
+	#sub xsltSaveResultToFile($file, $result, $style) {
+	#	sub _xsltSaveResultToFile(
+	#		FILE $fd,
+	#		xmlDoc $result,
+	#		xsltStylesheet style
+	#	)
+	#		is native('xslt')
+	#		is symbol('xsltSaveResultToFile')
+	#		returns int32
+	#	{ * };
+	#
+	#	die "Function requires the XML::LibXML package"
+	#		unless $xml_node_support;
+	#
+	#	_xsltSaveResulToFile($file, $result, $style);
+	#}
+
+	sub xsltSaveResultToFd($fd, $result, $style) {
+		sub _xsltSaveResultToFd(
+			int32 $fd,
+			xmlDoc $result,
+			xsltStylesheet $style
+		)
+			is native('xslt')
+			is symbol('xsltSaveResultToFd')
+			returns int32
+		{ * };
+
+		die "Function requires the XML::LibXML package"
+			unless $xml_node_support;
+
+		_xsltSaveResulToFd($fd, $result, $style);
+	}
+
+	sub xsltSaveResultToString($out is rw, $len is rw, $result, $style) {
+		# cw: Another reason to do this via wrappers is so that we can 
+		#     do work for the caller, as in this case. 
+		#
+		#     The caller should just be able to pass a string value and have
+		#     this wrapper do all of the NativeCall work to properly prepare 
+		#     $out and $len. 
+		sub _xsltSaveResultToString(
+			Pointer[Str] $out,
+			Pointer[int32] $len,
+			xmlDoc $result,
+			xsltStylesheet $style
+		)
+
+		die "Function requires the XML::LibXML package"
+			unless $xml_node_support;
+
+		_xsltSaveResultToString($out, $len, $result, $style);
 	}
 
 }
