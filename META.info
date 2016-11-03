@@ -1,0 +1,14 @@
+{
+    "name" : "XSLT::LibXSLT",
+    "perl" : "6.c",
+    "version" : "0.0.1",
+    "authors" : [ "github:Xliff", "Clifton Wood" ],
+    "description" : "Perl6 bindings for libxslt",
+    "depends" : [ "XML::L:ibXML" ],
+    "build-depends" : [ ],
+    "test-depends" : [ "Test::META" ],
+    "provides" : {
+        "XSLT::LibXSLT::Utils"  : "lib/XSLT/LibXSLT/Utils.pm",
+    },
+    "source-url" : "git://github.com/Xliff/p6-xslt.git"
+}
