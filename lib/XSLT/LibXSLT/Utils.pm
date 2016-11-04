@@ -1,6 +1,6 @@
 use v6.c;
 
-use XSLT::Types;
+use XSLT::LibXSLT::Types;
 
 class xmlXPathCompExprPtr 	{ ... };
 class xmlDoc 				{ ... };
@@ -15,7 +15,7 @@ my $xml_support;
 # cw: To convert from file descriptor to FILE*
 sub fdopen(int32 $fd, Str $mode) is native returns Pointer { * };
 
-module XSLT::Utils {
+module XSLT::LibXSLT::Utils {
 	constant XSLT = ('xslt', v1);
 
 	enum xsltDebugTraceCodes is export (
