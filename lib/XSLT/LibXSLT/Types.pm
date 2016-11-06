@@ -206,3 +206,102 @@ class xsltTemplate is repr('CStruct') is export {
 	has xsltTemplate 	$.templCalledTab;
 	has int32			$.templCountTab;
 }
+
+class xsltTransformContext {
+	has xsltStylesheet 		$.style;
+	has int32				$.type;
+
+	has xsltTemplate 		$.templ;
+	has int32 				$.templNr;
+	has int32 				$.templMax;
+	has xsltTemplate 		$.templTab;
+
+	has xsltStackElem		$.vars;
+	has int32				$.varsNr;
+	has int32				$.varsMax;
+	has xsltStackElem		$.varsTab;
+	has int32				$.varsBase;
+
+	has xmlHashTable 		$.extFunctions;
+	has xmlHashTable 		$.extElements;
+	has xmlHashTable 		$.extInfos;
+
+	has Str 				$.mode;
+	has Str 				$.modeURI;
+
+	has xsltDocument 		$.docList;
+	has xsltDocument 		$.document;
+	has xmlNode 			$.node;
+	has xmlNodeSet			$.nodeList;
+
+	has xmlDoc 				$.output;
+	has xmlNode 			$.insert;
+
+	has xmlXPathContext 	$.xpathCtxt;
+	has xsltTransformState 	$.state;
+
+	has xmlHashTable 		$.globalVars;
+	has xmlNode 			$.inst;
+
+	has int32				$.include;
+	has Str 				$.outputFile;
+
+	has int32				$.profile;
+	has int64				$.prof;
+	has int32				$.profNr;
+	has int32				$.profMax;
+	has Pointer				$.profTab;
+
+	has Pointer				$._private; 
+
+	has int32				$.extrasNr;
+	has int32				$.extrasMax;
+	has xsltRuntimeExtra	$.extras;
+
+	has xsltDocument 		$.styleList;
+	has Pointer 			$.sec;
+
+	has Pointer				$.error;
+	has Pointer				$.errctx;
+
+	has Point 				$.sortfunc;
+
+	has xmlDoc 				$.tmpRVT;
+	has xmlDoc 				$.persistRVT;
+	has int32 				$.ctxtflags;
+
+	has Str 				$.lasttext;
+	has uint32				$.lasttsize;
+	has uint32				$.lastuse;
+
+	has int32 				$.debugStatus;
+	has uintr64 			$.traceCode;
+
+	has int32	 			$.parserOptions;
+
+	has xmlDict 			$.dict;
+	has xmlDoc 				$.tmpDoc;
+
+	has int32				$.internalized;
+	has int32 				$.nbKeys;
+	has int32				$.hasTemplKeyPatterns;
+	has xsltTemplate 		$.currentTemplateRule;
+	has xmlNode 			$.initialContextNode;
+	has xmlDoc 				$.initialContextDoc;
+	has xsltTransformCache	$.cache;
+	has Pointer 			$.contextVariable;
+	has xmlDoc 				$.localRVT;
+	has xmlDoc 				$.localRVTBase;
+	has int32				$.keyInitLevel;
+	has int32				$.funcLevel;
+	has int32				$.maxTemplateDepth;
+	has int32 				$.maxTemplateVars;
+
+	has uint64 				$.nextid;
+}
+
+
+
+
+	# ...
+}
