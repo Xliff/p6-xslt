@@ -1,60 +1,80 @@
 use v6.c;
 
+use NativeCall;
+
+our $libxml_support;
+{
+	$libxml_support = (try require ::('XML::LibXML::Node')) !~~ Nil;
+}
+
 # XML::LibXML predefines
-class xmlNode 			{ ... }
-class xmlNs   			{ ... }
-class xmlDict			{ ... }
-class xmlDoc  			{ ... }
-class xmlHashTable 		{ ... }
-class xmlXPathObject	{ ... }
+if $libxml_support {
+	require XML::LibXML::Node;
+	require XML::LibXML::NodeSet;
+	require XML::LibXML::Dict;
+	require XML::LibXML::Doc;
+	require XML::LibXML::HashTable;
+	require XML::LibXML::XPath;
+} else {
+	class xmlNode 			is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlNodeSet		is repr('CStruct')  { has int32 $.dummy; }
+	class xmlNs   			is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlDict			is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlDoc  			is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlHashTable		is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlXPathContext	is repr('CStruct')  { has int32 $.dummy; }
+	class xmlXPathObject 	is repr('CStruct')	{ has int32 $.dummy; }
+}
 
 # libxslt predefines.
-class xsltTransformContext { ... }
+class xsltTemplate 			is repr('CStruct') { ... }
+class xsltTransformContext 	is repr('CStruct') { ... }
+class xsltRuntimeExtra		is repr('CStruct') { ... }
 
-enum xsltStyleType is export = (
-    XSLT_FUNC_COPY = 1,
-    XSLT_FUNC_SORT,
-    XSLT_FUNC_TEXT,
-    XSLT_FUNC_ELEMENT,
-    XSLT_FUNC_ATTRIBUTE,
-    XSLT_FUNC_COMMENT,
-    XSLT_FUNC_PI,
-    XSLT_FUNC_COPYOF,
-    XSLT_FUNC_VALUEOF,
-    XSLT_FUNC_NUMBER,
-    XSLT_FUNC_APPLYIMPORTS,
-    XSLT_FUNC_CALLTEMPLATE,
-    XSLT_FUNC_APPLYTEMPLATES,
-    XSLT_FUNC_CHOOSE,
-    XSLT_FUNC_IF,
-    XSLT_FUNC_FOREACH,
-    XSLT_FUNC_DOCUMENT,
-    XSLT_FUNC_WITHPARAM,
-    XSLT_FUNC_PARAM,
-    XSLT_FUNC_VARIABLE,
-    XSLT_FUNC_WHEN,
-    XSLT_FUNC_EXTENSION,
+enum xsltStyleType is export (
+    XSLT_FUNC_COPY => 1,
+    'XSLT_FUNC_SORT',
+    'XSLT_FUNC_TEXT',
+    'XSLT_FUNC_ELEMENT',
+    'XSLT_FUNC_ATTRIBUTE',
+    'XSLT_FUNC_COMMENT',
+    'XSLT_FUNC_PI',
+    'XSLT_FUNC_COPYOF',
+    'XSLT_FUNC_VALUEOF',
+    'XSLT_FUNC_NUMBER',
+    'XSLT_FUNC_APPLYIMPORTS',
+    'XSLT_FUNC_CALLTEMPLATE',
+    'XSLT_FUNC_APPLYTEMPLATES',
+    'XSLT_FUNC_CHOOSE',
+    'XSLT_FUNC_IF',
+    'XSLT_FUNC_FOREACH',
+    'XSLT_FUNC_DOCUMENT',
+    'XSLT_FUNC_WITHPARAM',
+    'XSLT_FUNC_PARAM',
+    'XSLT_FUNC_VARIABLE',
+    'XSLT_FUNC_WHEN',
+    'XSLT_FUNC_EXTENSION',
 #cw: Not using XSLT_REFACTORED
-#    XSLT_FUNC_OTHERWISE,
-#    XSLT_FUNC_FALLBACK,
-#    XSLT_FUNC_MESSAGE,
-#    XSLT_FUNC_INCLUDE,
-#    XSLT_FUNC_ATTRSET,
-#    XSLT_FUNC_LITERAL_RESULT_ELEMENT,
-#    XSLT_FUNC_UNKOWN_FORWARDS_COMPAT
+#    'XSLT_FUNC_OTHERWISE',
+#    'XSLT_FUNC_FALLBACK',
+#    'XSLT_FUNC_MESSAGE',
+#    'XSLT_FUNC_INCLUDE',
+#    'XSLT_FUNC_ATTRSET',
+#    'XSLT_FUNC_LITERAL_RESULT_ELEMENT',
+#    'XSLT_FUNC_UNKOWN_FORWARDS_COMPAT
 #endif
 );
 
-enum xsltOutputType is export = (
-    XSLT_OUTPUT_XML = 0,
-    XSLT_OUTPUT_HTML,
-    XSLT_OUTPUT_TEXT
+enum xsltOutputType is export (
+    XSLT_OUTPUT_XML => 0,
+    'XSLT_OUTPUT_HTML',
+    'XSLT_OUTPUT_TEXT',
 );
 
-enum xsltTransformState is export = (
-    XSLT_STATE_OK = 0,
-    XSLT_STATE_ERROR,
-    XSLT_STATE_STOPPED
+enum xsltTransformState is export (
+    XSLT_STATE_OK => 0,
+    'XSLT_STATE_ERROR',
+    'XSLT_STATE_STOPPED',
 );
 
 class xsltDecimalFormat is repr('CStruct') is export {
@@ -72,7 +92,7 @@ class xsltDecimalFormat is repr('CStruct') is export {
 	has Str 				$.zeroDigit;
 }
 
-class xslDocument is repr('CStruct') is export {
+class xsltDocument is repr('CStruct') is export {
 	has xsltDocument		$.next;
 	has int32				$.main;
 	has xmlDoc 				$.doc;
@@ -80,6 +100,25 @@ class xslDocument is repr('CStruct') is export {
 	has xsltDocument		$.includes;
 	has int32				$.preproc;
 	has int32				$.nbKeysComputed;
+}
+
+class xsltElemPreComp is repr('CStruct') is export {
+	has xsltElemPreComp		$.next;
+	has int32				$.type;
+	has Pointer				$.func;
+	has xmlNode 			$.inst;
+	has Pointer				$.free;
+}
+
+class xslt_ptr_int is repr('CUnion') is export {
+	has Pointer				$.pointer;
+	has int32				$.ival;
+}
+
+class xsltRuntimeExtra is export {
+	has Pointer				$.info;
+	has Pointer				$.deallocate;
+	HAS xslt_ptr_int		$.val;
 }
 
 class xsltStylePreComp is repr('CStruct') is export {
@@ -109,9 +148,9 @@ class xsltStackElem is repr('CStruct') is export {
 }
 
 class xsltStylesheet is repr('CStruct') is export {
-	has xsltStyleSheet 		$.parent;
+	has xsltStylesheet 		$.parent;
 	has xsltStylesheet 		$.next;
-	has xsltStyleSheet  	$.imports;
+	has xsltStylesheet  	$.imports;
 
 	has xsltDocument		$.docList;
 
@@ -143,7 +182,7 @@ class xsltStylesheet is repr('CStruct') is export {
 	has Str 				$.encoding;
 	has int32 				$.omitXmlDeclaration;
 
-	has xslDecimalFormat	$.decimalFormat;
+	has xsltDecimalFormat	$.decimalFormat;
 	has int32				$.standalone;
 	has Str 				$.doctypePublic;
 	has Str 				$.doctypeSystem;
@@ -176,7 +215,7 @@ class xsltStylesheet is repr('CStruct') is export {
 
 	# cw: XSLT_REFACTORED not defined on Ubuntu. There really is NO GOOD WAY to 
 	#     handle this section. If SEGVs are encountered in the use of this module
-	#     this might be the reason, hence the commented code below:
+	#     this might be the 'reason', hence the commented code below:
 	# has Pointer					$.compCtxt;
 	# xsltPrincipalStylesheetData	$.principalData;
 
@@ -185,11 +224,11 @@ class xsltStylesheet is repr('CStruct') is export {
 	has xmlHashTable		$.namedTemplates;
 }
 
-class xsltTemplate is repr('CStruct') is export {
+class xsltTemplate is export {
 	has xsltTemplate 	$.next;
 	has xsltStylesheet	$.style;
 	has Str				$.match;
-	has Num32			$.priority;
+	has num32			$.priority;
 	has Str				$.name;
 	has Str				$.nameURI;
 	has Str				$.mode;
@@ -207,7 +246,21 @@ class xsltTemplate is repr('CStruct') is export {
 	has int32			$.templCountTab;
 }
 
-class xsltTransformContext {
+class xsltTransformCache is repr('CStruct') {
+	has xmlDoc 			$.RVT;
+	has int32 			$.nvRVT;
+	has xsltStackElem 	$.stackItems;
+	has int32			$.nbStackItems;
+	# cw: There is no good way to support conditional XSLT_DEBUG_PROFILE_CACHE 
+	#     'elements', yet. Ubuntu has them commented 'out', so for now we do not 
+	#     consider their existence.
+	# has int32			$.dbgCachedRVTs;
+	# has int32			$.debugReusedRVTs;
+	# has int32			$.debugCachedVars;
+	# has int32			$.debugReusedVars;
+}
+
+class xsltTransformContext is export {
 	has xsltStylesheet 		$.style;
 	has int32				$.type;
 
@@ -238,7 +291,7 @@ class xsltTransformContext {
 	has xmlNode 			$.insert;
 
 	has xmlXPathContext 	$.xpathCtxt;
-	has xsltTransformState 	$.state;
+	has int32			 	$.state;
 
 	has xmlHashTable 		$.globalVars;
 	has xmlNode 			$.inst;
@@ -264,7 +317,7 @@ class xsltTransformContext {
 	has Pointer				$.error;
 	has Pointer				$.errctx;
 
-	has Point 				$.sortfunc;
+	has Pointer				$.sortfunc;
 
 	has xmlDoc 				$.tmpRVT;
 	has xmlDoc 				$.persistRVT;
@@ -275,7 +328,7 @@ class xsltTransformContext {
 	has uint32				$.lastuse;
 
 	has int32 				$.debugStatus;
-	has uintr64 			$.traceCode;
+	has uint64 				$.traceCode;
 
 	has int32	 			$.parserOptions;
 
@@ -298,10 +351,4 @@ class xsltTransformContext {
 	has int32 				$.maxTemplateVars;
 
 	has uint64 				$.nextid;
-}
-
-
-
-
-	# ...
 }
