@@ -7,9 +7,51 @@ use XSLT::LibXSLT::Types;
 # cw: To convert from file descriptor to FILE*
 sub fdopen(int32 $fd, Str $mode) is native returns Pointer { * };
 
-module XSLT::LibXSLT::Utils {
+module XSLT::LibXSLT::Subs {
 	constant XSLT = ('xslt', v1);
 
+	# attributes
+	sub xsltParseStylesheetAttributeSet($style, $cur) is export {
+		sub _xsltParseStylesheetAttributeSet(xsltStylesheet $style, xmlNode $cur)
+			is native(XSLT)
+			is symbol('xsltParseStylesheetAttributeSet')
+		{ * };
+		
+		die "Function requires the XML::LibXML::Node module"
+			unless $XSLT_xml_support;
+
+		_xsltParseStylesheetAttributeSet($style, $cur);
+	}
+
+	sub xsltFreeAttributeSetHashes(xsltStylesheet $style) 
+		is native(XSLT)
+		is export
+	{ * }
+
+	sub xsltApplyAttributeSet($ctxt, $node, $inst, $attributes) {
+		sub _xsltApplyAttributeSet(
+			xsltTransformContext $ctxt,
+			xmlNode $node,
+			xmlNode $inst,
+			Str $attributes
+		)
+			is native(XSLT)
+			is symbol('xsltApplyAttributeSet')
+		{ * };
+
+		die "Function requires the XML::LibXML::Node module"
+			unless $XSLT_xml_support;
+
+		_xsltApplyAttributeSet($ctxt, $node, $inst, $attributes);
+	}
+
+	sub xsltResoilveStylesheetAttributeSet(xsltStylesheet $style)
+		is native(XSLT)
+		is export
+	{ * }
+
+
+	# xsltutils
 	enum xsltDebugTraceCodes is export (
 		XSLT_TRACE_ALL 				=>	-1,
 		XSLT_TRACE_NONE 			=>	0,
