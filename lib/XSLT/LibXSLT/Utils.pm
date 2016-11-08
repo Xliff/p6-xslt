@@ -1,16 +1,8 @@
 use v6.c;
 
+use NativeCall;
+
 use XSLT::LibXSLT::Types;
-
-class xmlXPathCompExprPtr 	{ ... };
-class xmlDoc 				{ ... };
-class xmlNode 				{ ... };
-class xmlNodeSet 			{ ... };
-
-my $xml_support;
-{
-	$xml_node_support = (try require ::('XML::LibXML::Node')) !~~ Nil;
-}
 
 # cw: To convert from file descriptor to FILE*
 sub fdopen(int32 $fd, Str $mode) is native returns Pointer { * };
@@ -19,40 +11,40 @@ module XSLT::LibXSLT::Utils {
 	constant XSLT = ('xslt', v1);
 
 	enum xsltDebugTraceCodes is export (
-		XSLT_TRACE_ALL 				=	-1,
-		XSLT_TRACE_NONE 			=	0,
-		XSLT_TRACE_COPY_TEXT 		=	0b1,
-		XSLT_TRACE_PROCESS_NODE 	=	0b10,
-		XSLT_TRACE_APPLY_TEMPLATE 	=	0b100,
-		XSLT_TRACE_COPY 			=	0b1000,
-		XSLT_TRACE_COMMENT 			=	0b10000,
-		XSLT_TRACE_PI 				=	0b100000,
-		XSLT_TRACE_COPY_OF 			=	0b1000000,
-		XSLT_TRACE_VALUE_OF 		=	0b10000000,
-		XSLT_TRACE_CALL_TEMPLATE 	=	0b100000000,
-		XSLT_TRACE_APPLY_TEMPLATES  =	0b1000000000,
-		XSLT_TRACE_CHOOSE 			=	0b10000000000,
-		XSLT_TRACE_IF 				=	0b100000000000,
-		XSLT_TRACE_FOR_EACH 		=	0b1000000000000,
-		XSLT_TRACE_STRIP_SPACES 	=	0b10000000000000,
-		XSLT_TRACE_TEMPLATES 		=	0b100000000000000,
-		XSLT_TRACE_KEYS 			=	0b1000000000000000,
-		XSLT_TRACE_VARIABLES 		=	0b10000000000000000
+		XSLT_TRACE_ALL 				=>	-1,
+		XSLT_TRACE_NONE 			=>	0,
+		XSLT_TRACE_COPY_TEXT 		=>	0b1,
+		XSLT_TRACE_PROCESS_NODE 	=>	0b10,
+		XSLT_TRACE_APPLY_TEMPLATE 	=>	0b100,
+		XSLT_TRACE_COPY 			=>	0b1000,
+		XSLT_TRACE_COMMENT 			=>	0b10000,
+		XSLT_TRACE_PI 				=>	0b100000,
+		XSLT_TRACE_COPY_OF 			=>	0b1000000,
+		XSLT_TRACE_VALUE_OF 		=>	0b10000000,
+		XSLT_TRACE_CALL_TEMPLATE 	=>	0b100000000,
+		XSLT_TRACE_APPLY_TEMPLATES  =>	0b1000000000,
+		XSLT_TRACE_CHOOSE 			=>	0b10000000000,
+		XSLT_TRACE_IF 				=>	0b100000000000,
+		XSLT_TRACE_FOR_EACH 		=>	0b1000000000000,
+		XSLT_TRACE_STRIP_SPACES 	=>	0b10000000000000,
+		XSLT_TRACE_TEMPLATES 		=>	0b100000000000000,
+		XSLT_TRACE_KEYS 			=>	0b1000000000000000,
+		XSLT_TRACE_VARIABLES 		=>	0b10000000000000000
 	);
 
 	constant XSLT_TIMESTAMP_TICS_PER_SEC is export = 100000;
 
 	enum xsltDebugStatusCodes is export (
-	    XSLT_DEBUG_NONE = 0, 
-	    XSLT_DEBUG_INIT,
-	    XSLT_DEBUG_STEP,
-	    XSLT_DEBUG_STEPOUT,
-	    XSLT_DEBUG_NEXT,
-	    XSLT_DEBUG_STOP,
-	    XSLT_DEBUG_CONT,
-	    XSLT_DEBUG_RUN,
-	    XSLT_DEBUG_RUN_RESTART,
-	    XSLT_DEBUG_QUIT
+	    XSLT_DEBUG_NONE => 0, 
+	    'XSLT_DEBUG_INIT',
+	    'XSLT_DEBUG_STEP',
+	    'XSLT_DEBUG_STEPOUT',
+	    'XSLT_DEBUG_NEXT',
+	    'XSLT_DEBUG_STOP',
+	    'XSLT_DEBUG_CONT',
+	    'XSLT_DEBUG_RUN',
+	    'XSLT_DEBUG_RUN_RESTART',
+	    'XSLT_DEBUG_QUIT'
 	);
 
 	sub xsltGetUTF8Char(Str $utf, int32 $len)
@@ -94,7 +86,7 @@ module XSLT::LibXSLT::Utils {
 
 
 	sub xsltSetGenericDebugFunc(Pointer $ctx, Pointer $handler)
-		native(XSLT)
+		is native(XSLT)
 		is export
 	{ * };
 
@@ -118,11 +110,11 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltGetNsProp($node, $name, $ns) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltGetNsProp(xmlNode $node, Str $name, Str $ns) 
 			is native(XSLT) 
-			is symbol ('xsltGetNsProp')
+			is symbol('xsltGetNsProp')
 			returns Str
 		{ * };
 		
@@ -131,16 +123,16 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltGetCNsProp($sheet, $node, $name, $ns) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
-		sub _xsltCGetNsProp(
-			xsltStyleSheet $sheet, 
+		sub _xsltGetCNsProp(
+			xsltStylesheet $sheet, 
 			xmlNode $node, 
 			Str $name, 
 			Str $ns
 		) 
 			is native(XSLT) 
-			is symbol ('xsltGetCNsProp')
+			is symbol('xsltGetCNsProp')
 			returns Str
 		{ * };
 
@@ -149,11 +141,11 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltPrintErrorContext($ctxt, $style, $node) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltPrintErrorContext(
 			xsltTransformContext $ctxt, 
-			xsltStyleSheet $sheet, 
+			xsltStylesheet $sheet, 
 			xmlNode $node
 		) 
 			is native(XSLT)
@@ -165,7 +157,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltMessage($ctxt, $node, $inst) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltMessage(
 			xsltTransformContext $ctxt, 
@@ -183,7 +175,7 @@ module XSLT::LibXSLT::Utils {
 		# cw: We should break out support to different modules. Especially 
 		#     since XML::LibXML is not yet complete... or released.
 		die "Functon requires the XML::LibXML::NodeSet module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltDocumentSortFunction(xmlNodeSet $list)
 			is native(XSLT)
@@ -205,7 +197,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltDefaultSortFunction($ctxt, $nodes, $num) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltDefaultSortFunction(
 			xsltTransformContext $ctxt, 
@@ -221,7 +213,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltDoSortFunction($ctxt, $nodes, $num) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltDoSortFunction(
 			xsltTransformContext $ctxt, 
@@ -232,12 +224,12 @@ module XSLT::LibXSLT::Utils {
 			is symbol('xsltDoSortFunction')
 		{ * };
 
-		_xsltDotSortFunction($ctxt, $nodes, $num)
+		_xsltDoSortFunction($ctxt, $nodes, $num)
 	}
 
 	sub xsltComputeSortResult($ctxt, $node) is export {
 		die "Function requires the XML::LibXML::XPath module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltComputeSortResult(xsltTransformContext $ctxt, xmlNode $node)
 			is native(XSLT)
@@ -248,14 +240,14 @@ module XSLT::LibXSLT::Utils {
 		_xsltComputeSortResult($ctxt, $node);
 	}
 
-	sub xsltSplitQName($dict, $name, @prefix) is export {
+	sub xsltSplitQName($dict, $name, $prefix) is export {
 		die "Function requires the XML::LibXML::Dict module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		# cw: Check to insure @prefix is using the right sigil.
-		sub _xsltSplitQName(xmlDict $dict, Str $name, CArray[str] @prefix)
+		sub _xsltSplitQName(xmlDict $dict, Str $name, CArray[Str] $prefix)
 			is native(XSLT)
-			is symbol ('xsltSplitQName')
+			is symbol('xsltSplitQName')
 			returns Str	
 		{ * };
 
@@ -264,7 +256,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltGetQNameURI($node, $name) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltGetQNameURI(xmlNode $node, Str $name)
 			is native(XSLT)
@@ -275,58 +267,58 @@ module XSLT::LibXSLT::Utils {
 		_xsltGetQNameURI($node, $name);
 	}
 
-	sub xsltGetQNameURI2($style $node, $name) is export {
+	sub xsltGetQNameURI2($style, $node, $name) is export {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
-		sub _xsltGetQNameURI(xsltStyleSheet $style, xmlNode $node, Str $name)
+		sub _xsltGetQNameURI(xsltStylesheet $style, xmlNode $node, Str $name)
 			is native(XSLT)
 			is symbol('xsltGetQNameURI2')
 			returns Str	
 		{ * };
 
-		_xsltGetQNameURI($style $node, $name);
+		_xsltGetQNameURI($style, $node, $name);
 	}
 
 	sub xsltSaveResultTo($buf, $result, $style) is export {
 		die "Function requires the XML::LibXML package"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltSaveResultTo(
 			xmlOutputBuffer $buf,
 			xmlDoc $result,
-			xsltStylesheet style
+			xsltStylesheet $style
 		)
 			is native(XSLT)
 			is symbol('xsltSaveResultTo')
 			returns int32
 		{ * };
 
-		_xsltSaveResulTo($buf, $result, $style);
+		_xsltSaveResultTo($buf, $result, $style);
 	}
 
 	sub xsltSaveResultToFilename($uri, $result, $style, $comp) is export {
 		die "Function requires the XML::LibXML package"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltSaveResultToFilename(
 			Str $uri,
 			xmlDoc $result,
 			xsltStylesheet $style,
-			int $comp
+			int32 $comp
 		)
 			is native(XSLT)
 			is symbol('xsltSaveResultToFilename')
 			returns int32
 		{ * };
 
-		_xsltSaveResulToFilename($buf, $result, $style, $comp);
+		_xsltSaveResultToFilename($uri, $result, $style, $comp);
 	}
 
 
 	sub xsltSaveResultToFile($file, $result, $style) {
 		die "Function requires the XML::LibXML package"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		die "Must pass an IO::Handle as the first parameter!"
 			unless $file ~~ File::Handle;
@@ -336,19 +328,19 @@ module XSLT::LibXSLT::Utils {
 		sub _xsltSaveResultToFile(
 			Pointer $fd,
 			xmlDoc $result,
-			xsltStylesheet style
+			xsltStylesheet $style
 		)
 			is native(XSLT)
 			is symbol('xsltSaveResultToFile')
 			returns int32
 		{ * };
 	
-		_xsltSaveResulToFile($fd, $result, $style);
+		_xsltSaveResultToFile($fd, $result, $style);
 	}
 
 	sub xsltSaveResultToFd($fd, $result, $style) is export {
 		die "Function requires the XML::LibXML package"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltSaveResultToFd(
 			int32 $fd,
@@ -360,14 +352,14 @@ module XSLT::LibXSLT::Utils {
 			returns int32
 		{ * };
 
-		_xsltSaveResulToFd($fd, $result, $style);
+		_xsltSaveResultToFd($fd, $result, $style);
 	}
 
 	sub xsltSaveResultToString($out is rw, $len is rw, $result, $style) 
 		is export
 	{
 		die "Function requires the XML::LibXML package"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		# cw: Another reason to do this via wrappers is so that we can 
 		#     do work for the caller, as in this case. 
@@ -391,12 +383,12 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltXPathCompile($style, $str) is export {
 		die "Function requires the XML::LibXML::XPath module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
-		sub _xsltXPathCompile(xsltStyleSheet $style, Str $str)
+		sub _xsltXPathCompile(xsltStylesheet $style, Str $str)
 			is native(XSLT)
 			is symbol('xsltXPathCompile')
-			returns xsltXPathCompExpr
+			returns Pointer
 		{ * };
 
 		_xsltXPathCompile($style, $str);
@@ -404,18 +396,18 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltXPathCompileFlags($style, $str, $flags) is export {
 		die "Function requires the XML::LibXML::XPath module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
-		sub _xsltXPathCompileFlags(xsltStyleSheet $style, Str $str, int32 $flags)
+		sub _xsltXPathCompileFlags(xsltStylesheet $style, Str $str, int32 $flags)
 			is native(XSLT)
 			is symbol('xsltXPathCompileFlags')
-			returns xmlXPathCompExpr
+			returns Pointer
 		{ * };
 
 		_xsltXPathCompileFlags($style, $str, $flags);
 	}
 
-	sub xsltSaveResultToFile($ctxt, $output) {
+	sub xsltSaveProfiling($ctxt, $output) {
 		die "Second parameter to xsltSaveResultToFile must be IO::Handle!"
 			unless $output ~~ IO::Handle;
 
@@ -431,7 +423,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xsltGetProfileInformation($ctxt) is export {
 		die "Function requires the XML::LibXML::Doc module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltGetProfileInformation(xsltTransformContext $ctxt)
 			is native(XSLT)
@@ -471,7 +463,7 @@ module XSLT::LibXSLT::Utils {
 
 	sub xslAddCall($tmpl, $src) {
 		die "Function requires the XML::LibXML::Node module"
-			unless $xml_node_support;
+			unless $XSLT_xml_support;
 
 		sub _xsltAddCall(xsltTemplate $templ, xmlNode $source)
 			is native(XSLT)

@@ -2,19 +2,14 @@ use v6.c;
 
 use NativeCall;
 
-our $libxml_support;
+our $XSLT_xml_support is export;
 {
-	$libxml_support = (try require ::('XML::LibXML::Node')) !~~ Nil;
+	$XSLT_xml_support = (try require ::('XML::LibXML::Node')) !~~ Nil;
 }
 
 # XML::LibXML predefines
-if $libxml_support {
-	require XML::LibXML::Node;
-	require XML::LibXML::NodeSet;
-	require XML::LibXML::Dict;
-	require XML::LibXML::Doc;
-	require XML::LibXML::HashTable;
-	require XML::LibXML::XPath;
+if $XSLT_xml_support {
+	require XML::LibXML::CStructs;
 } else {
 	class xmlNode 			is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlNodeSet		is repr('CStruct')  { has int32 $.dummy; }
@@ -24,6 +19,7 @@ if $libxml_support {
 	class xmlHashTable		is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlXPathContext	is repr('CStruct')  { has int32 $.dummy; }
 	class xmlXPathObject 	is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlOutputBuffer	is repr('CStruct')	{ has int32 $.dummy; }
 }
 
 # libxslt predefines.
