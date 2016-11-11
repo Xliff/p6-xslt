@@ -15,7 +15,7 @@ grammar XSLTFuncDef {
 	token wso 	{ [ \s ]* }
 
 	token returnType {
-		[<typePrefix> <ws>]? (\w+)
+		[<typePrefix> <ws>]? (\w+) <wso> (\*+)
 	}
 
 	token funcName {
@@ -27,7 +27,7 @@ grammar XSLTFuncDef {
 	}
 
 	token params {
-		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? (\w+)] [ ',' <ws> ]? 
+		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? <wso> (\w+)] [ ',' <ws> ]? 
 	}
 }
 
@@ -161,10 +161,13 @@ sub writeNC($f) {
 
 sub MAIN {
 	
-	my $text = "XSLTPUBFUN xsltTemplatePtr XSLTCALL
-                        xsltFindTemplate         (xsltTransformContextPtr ctxt,
-                                                  const xmlChar *name,
-                                                  const xmlChar *nameURI);";
+	my $text = "XSLTPUBFUN int XSLTCALL
+                xsltRegisterExtModuleFull
+                                        (const xmlChar * URI,
+                                         xsltExtInitFunction initFunc,
+                                         xsltExtShutdownFunction shutdownFunc,
+                                         xsltStyleExtInitFunction styleInitFunc,
+                                         xsltStyleExtShutdownFunction styleShutdownFunc);";
 
 	
 	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);

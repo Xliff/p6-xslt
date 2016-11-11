@@ -169,7 +169,11 @@ sub MAIN($filename) {
 
 	for @declarations -> $m {
 		my $t = XSLTFuncDef.parse($m[0], actions => grammarActions.new);
-		push @functions, $t.made;
+		if $t.defined {
+			push @functions, $t.made;
+		} else {
+			warn "Potential missed parsing:\n'{ $m[0] }'";
+		}
 	}
 
 	if @functions {
@@ -180,6 +184,8 @@ sub MAIN($filename) {
 		HEAD
 
 		for @functions -> $f {
+			next unless $f.defined;
+
 			if $f<params>.grep({ $_<type> ~~ /xml/ }) {
 				writeStub($f);
 			} else {
