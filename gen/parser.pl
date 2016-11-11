@@ -122,7 +122,7 @@ sub writeStub($f) {
 		$f<returnType><type> !! '';
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
-		say "\t# Potential CArray ({ $ca<stars>.chars })";
+		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
 	}
 	say qq:to/HERE/;
 		sub { $f<functionName> }($argsList) \{
@@ -149,7 +149,7 @@ sub writeNC($f) {
 		$f<returnType><type> !! '';
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
-		say "\t# Potential CArray ({ $ca<stars>.chars })";
+		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
 	}
 	say qq:to/NC/;
 		sub { $f<functionName> }($fullArgsList) 
