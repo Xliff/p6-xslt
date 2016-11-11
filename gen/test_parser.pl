@@ -1,6 +1,6 @@
 use v6.c;
 
-#use Grammar::Tracer;
+use Grammar::Tracer;
 
 grammar XSLTFuncDef {
 	token TOP { 
@@ -53,9 +53,9 @@ class grammarActions {
 
 	method typePrefix($/) {
 		given $/[0] {
-			#when Any {
-			#	make '';
-			#}
+			when Any {
+				make '';
+			}
 
 			when 'unsigned' {
 				make $/[0].Str;
@@ -127,12 +127,12 @@ sub writeStub($f) {
 	say qq:to/HERE/;
 		sub { $f<functionName> }($argsList) \{
 			die 'Function requires XML::LibXML'
-				unless \$XSLT_xml_support;
+				unless XSLT_xml_support;
 
 			sub _{ $f<functionName> }($fullArgsList) 
 				is native(XSLT)
 				is symbol('{ $f<functionName> }'){
-					$returns.chars ?? "\n\t\t\treturns $returns" !! ''
+					$returns.chars ?? "\n\t\treturns $returns" !! ''
 				}
 			\{ \* \};
 
@@ -154,37 +154,29 @@ sub writeNC($f) {
 	say qq:to/NC/;
 		sub { $f<functionName> }($fullArgsList) 
 			is native(XSLT)
-			is export{$returns.chars ?? "\n\t\t\treturns $returns" !! ''}
+			is export{$returns.chars ?? "\n\t\treturns $returns" !! ''}
 		\{ \* \};
 	NC
 }
 
-sub MAIN($filename) {
-	die "'$filename' does not exist" unless $filename.IO.e;
+sub MAIN {
+	
+	my $text = "XSLTPUBFUN xsltTemplatePtr XSLTCALL
+                        xsltFindTemplate         (xsltTransformContextPtr ctxt,
+                                                  const xmlChar *name,
+                                                  const xmlChar *nameURI);";
 
-	my $text = $filename.IO.slurp;
+	
+	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);
+	say $t;
+	my $r = $t.made;
+	dd $r;
 
-	my @functions;
-	my @declarations = $text ~~ m:g/^^ ('XSLTPUBFUN' .+? ';')/;
-
-	for @declarations -> $m {
-		my $t = XSLTFuncDef.parse($m[0], actions => grammarActions.new);
-		push @functions, $t.made;
+	if $r<params>.grep({ $_<type> ~~ /xml/ }) {
+		writeStub($r);
+	} else {
+		writeNC($r);
 	}
-
-	if @functions {
-		say qq:to/HEAD/;
-			#
-			# $filename
-			#
-		HEAD
-
-		for @functions -> $f {
-			if $f<params>.grep({ $_<type> ~~ /xml/ }) {
-				writeStub($f);
-			} else {
-				writeNC($f);
-			}
-		}
-	}
+	
+	
 }
