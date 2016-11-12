@@ -6,9 +6,9 @@ grammar XSLTFuncDef {
 	token TOP { 
 		'XSLTPUBFUN' <ws>
 		<returnType> <wso>
-		'XSLTCALL' <ws>
+		'XSLTCALL' <wso>
 		<funcName> <wso>
-		'(' <params>*  ');' 
+		'(' <wso> <params>* <wso> ');' 
 	}
 
 	token ws 	{ [ \s ]+ }
@@ -161,8 +161,10 @@ sub writeNC($f) {
 }
 
 sub MAIN {
-    my $text = "XSLTPUBFUN void XSLTCALL
-                xsltInitGlobals                 (void);";
+    my $text = "XSLTPUBFUN void * XSLTCALL
+                xsltStyleStylesheetLevelGetExtData(
+                                         xsltStylesheetPtr style,
+                                         const xmlChar * URI);";
 
 	say "==== Testing ====\n$text\n{ '=' x 25 }";
 	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);

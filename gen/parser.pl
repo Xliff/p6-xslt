@@ -8,7 +8,7 @@ grammar XSLTFuncDef {
 		<returnType> <wso>
 		'XSLTCALL' <ws>
 		<funcName> <wso>
-		'(' ( <params>* ) ');' 
+		'(' <wso> <params>* <wso> ');'  
 	}
 
 	token ws 	{ [ \s ]+ }
@@ -138,19 +138,35 @@ sub resolveReturnType($r) {
 		}
 
 		default {
-			$_
+			$_;
 		}
 	};
 }
 
 sub writeStub($f) {
-	my $argsList = $f<params>.map({ '$' ~ $_<name>}).join(', ');
-	my $fullArgsList = $f<params>.map({ 
-		($_<type> eq 'void' ?? 'Pointer' !! $_<type>) ~ 
-		' ' ~ 
-		'$' ~ $_<name>
-	}).join(', ');
+	my @argsList;
+	my @fullArgsList;
+	for @( $f<params> ) -> $p {
+		# cw: There should be a type here, but will leave this alone if it
+		#     works.
+		if 
+			($p<ctype> eq 'void' || $p<ctype>.chars == 0) && 
+			$p<stars>.chars == 0 
+		{
+			push @argsList, '';
+			push @fullArgsList, '';
+			last;
+		}
+
+		# cw: If we are at this point, assume any void types are (void *)
+		my $type = $p<type> eq 'void' ?? 'Pointer' !! 
+			$p<stars>.chars > 1 ?? "CArray[{ $p<type> }]" !! $p<type>;
+		my $var = "\${ $p<name> }";
+		push @argsList, $var;
+		push @fullArgsList, "$type $var";
+	}
 	my $returns = resolveReturnType($f<returnType>);
+	my $argsList = @argsList.join(', ');
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
 		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
@@ -160,7 +176,7 @@ sub writeStub($f) {
 			die 'Function requires XML::LibXML'
 				unless \$XSLT_xml_support;
 
-			sub _{ $f<functionName> }($fullArgsList) 
+			sub _{ $f<functionName> }({ @fullArgsList.join(', ') }) 
 				is native(XSLT)
 				is symbol('{ $f<functionName> }'){
 					$returns.chars ?? "\n\t\t\treturns $returns" !! ''
@@ -173,17 +189,30 @@ sub writeStub($f) {
 }
 
 sub writeNC($f) {
-	my $fullArgsList = $f<params>.map({ 
-		$_<type> ~ ' ' ~ '$' ~ $_<name>
-	}).join(', ');
+	my @fullArgsList;
+	for @( $f<params> ) -> $p { 
+		# cw: This is also non-optimal. There should be a type here.
+		if ($p<ctype> eq 'void' || $p<ctype>.chars == 0) && $p<stars>.chars == 0 {
+			push @fullArgsList, '';
+			last;
+		}
+
+		# cw: If we are at this point, assume any void types are (void *)
+		# cw: Note, CArray handling is *not optimal* and will not handle 
+		#     multidim arrays... yet.
+		my $type = $p<type> eq 'void' ?? 'Pointer' !! 
+			$p<stars>.chars > 1 ?? "CArray[{ $p<type> }]" !! $p<type>;
+		my $var = "\${ $p<name> }";
+		push @fullArgsList, "$type $var";
+	}
 	my $returns = resolveReturnType($f<returnType>);
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
-		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
+		say "\t# Potential Multi-Dimensional CArray ({ $ca<stars>.chars - 2 })";
 	}
 
 	say qq:to/NC/;
-		sub { $f<functionName> }($fullArgsList) 
+		sub { $f<functionName> }({ @fullArgsList.join(', ') }) 
 			is native(XSLT)
 			is export{$returns.chars ?? "\n\t\treturns $returns" !! ''}
 		\{ \* \};
