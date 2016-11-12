@@ -11,8 +11,8 @@ grammar XSLTFuncDef {
 		'(' ( <params>* ) ');' 
 	}
 
-	token ws 	{ [ \s || \n ]+ }
-	token wso 	{ [ \s || \n ]* }
+	token ws 	{ [ \s ]+ }
+	token wso 	{ [ \s ]* }
 
 	token returnType {
 		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
@@ -27,6 +27,7 @@ grammar XSLTFuncDef {
 	}
 
 	token params {
+		'void' || 
 		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? <wso> (\w+)] [ ',' <ws> ]? 
 	}
 }
@@ -83,6 +84,10 @@ class grammarActions {
 	#     an auto-executed action.
 	method !typeConv($t) {
 		do given $t {
+			when Nil {
+				'';
+			}
+
 			when /Ptr$/ {
 				S/Ptr$//;
 			}

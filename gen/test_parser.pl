@@ -8,7 +8,7 @@ grammar XSLTFuncDef {
 		<returnType> <wso>
 		'XSLTCALL' <ws>
 		<funcName> <wso>
-		'(' ( <params>* ) ');' 
+		'(' <params>*  ');' 
 	}
 
 	token ws 	{ [ \s ]+ }
@@ -26,8 +26,9 @@ grammar XSLTFuncDef {
 		'const' || 'unsigned'
 	}
 
-	token params {
-		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? <wso> (\w+)] [ ',' <ws> ]? 
+	regex params {
+		'void' || 
+		[<typePrefix> <ws>]? (\w+) [<ws> ('*' +)? <wso> (\w+)] [ ',' <ws> ]? 
 	}
 }
 
@@ -160,14 +161,8 @@ sub writeNC($f) {
 }
 
 sub MAIN {
-	
-  my $text = "XSLTPUBFUN int XSLTCALL
-                 xsltRegisterExtModuleFull
-                                         (const xmlChar * URI,
-                                          xsltExtInitFunction initFunc,
-                                          xsltExtShutdownFunction shutdownFunc,
-                                          xsltStyleExtInitFunction styleInitFunc,
-                                          xsltStyleExtShutdownFunction styleShutdownFunc);";
+    my $text = "XSLTPUBFUN void XSLTCALL
+                xsltInitGlobals                 (void);";
 
 	say "==== Testing ====\n$text\n{ '=' x 25 }";
 	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);
