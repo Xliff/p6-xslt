@@ -11,15 +11,20 @@ grammar XSLTFuncDef {
 		'(' <wso> <params>* <wso> ');' 
 	}
 
-	token ws 	{ [ \s ]+ }
-	token wso 	{ [ \s ]* }
+	token ws 	{ \s+ }
+	token wso 	{ \s* }
+	token stars { '*' * }
 
 	token returnType {
-		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
+		[<typePrefix> <ws>]? (\w+) <wso> <stars>
 	}
 
 	token funcName {
 		(\w+)
+	}
+
+	token typeName {
+		\w+
 	}
 
 	token typePrefix {
@@ -27,9 +32,15 @@ grammar XSLTFuncDef {
 	}
 
 	regex params {
-		'void' || 
-		[<typePrefix> <ws>]? (\w+) [<ws> ('*' +)? <wso> (\w+)] [ ',' <ws> ]? 
+		[
+			[ 'void' <ws> <stars> (\w+)] || 
+			[<typePrefix> <ws>]? 
+			<typeName> <stars> <ws> <stars> <wso> <stars>(\w+)
+		] 
+		[ ',' <ws> ]? 
 	}
+
+
 }
 
 class grammarActions {
@@ -46,8 +57,8 @@ class grammarActions {
 	method returnType($/) {
 		my $tp = $/<typePrefix>.defined ?? $/<typePrefix>.made !! '';
 		make {
-			ctype 	=> $/[0].Str,
-			type 	=> $tp ~ self!typeConv($/[0])
+			ctype 	=> $/<typeName>.Str,
+			type 	=> $tp ~ self!typeConv($/<typeName>.Str)
 		}
 		
 	}
@@ -70,12 +81,14 @@ class grammarActions {
 
 	method params($/) {
 		my $tp = $/<typePrefix>.defined ?? $/<typePrefix>.made !! '';
+		my $stars = $/<stars>.map({ $_.Str }).join('');
+		my $ctype = ($/<typeName> // '').Str;
 
 		push @!params, {
-			ctype 	=> ($/[0] // '').Str,
-			type 	=> $tp ~ self!typeConv($/[0]),
-			name 	=> ($/[2] // '').Str,
-			stars 	=> ($/[1] // '').Str,
+			ctype 	=> $ctype,
+			type 	=> $tp ~ self!typeConv($ctype),
+			name 	=> ($/[0] // '').Str,
+			stars 	=> $stars,
 		}
 	}
 
@@ -83,6 +96,10 @@ class grammarActions {
 	#     an auto-executed action.
 	method !typeConv($t) {
 		do given $t {
+			when Nil {
+				'';
+			}
+
 			when /Ptr$/ {
 				S/Ptr$//;
 			}
@@ -161,10 +178,10 @@ sub writeNC($f) {
 }
 
 sub MAIN {
-    my $text = "XSLTPUBFUN void * XSLTCALL
-                xsltStyleStylesheetLevelGetExtData(
-                                         xsltStylesheetPtr style,
-                                         const xmlChar * URI);";
+    my $text = "XSLTPUBFUN int XSLTCALL
+                xsltPointerListAddSize          (xsltPointerListPtr list,
+                                                 void *item,
+                                                 int initialSize);";
 
 	say "==== Testing ====\n$text\n{ '=' x 25 }";
 	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);

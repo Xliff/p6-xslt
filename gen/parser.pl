@@ -6,29 +6,41 @@ grammar XSLTFuncDef {
 	token TOP { 
 		'XSLTPUBFUN' <ws>
 		<returnType> <wso>
-		'XSLTCALL' <ws>
+		'XSLTCALL' <wso>
 		<funcName> <wso>
 		'(' <wso> <params>* <wso> ');'  
 	}
 
-	token ws 	{ [ \s ]+ }
-	token wso 	{ [ \s ]* }
+	token ws 	{ \s+ }
+	token wso 	{ \s* }
+	token stars { '*' * }
 
 	token returnType {
-		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
+		[<typePrefix> <ws>]? <typeName> <wso> <stars>
 	}
 
 	token funcName {
-		(\w+)
+		\w+
+	}
+
+	token typeName {
+		\w+
 	}
 
 	token typePrefix {
 		'const' || 'unsigned'
 	}
 
-	token params {
-		'void' || 
-		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? <wso> (\w+)] [ ',' <ws> ]? 
+	regex params {
+		[
+			[ 'void' <wso> <stars> <wso> ]
+
+			|| 
+
+			[<typePrefix> <ws>]? 
+			<typeName> <stars> <ws> <stars> <wso> 
+		] 
+		<stars> (\w+)? [ ',' <ws> ]? 
 	}
 }
 
@@ -37,7 +49,7 @@ class grammarActions {
 
 	method TOP($/) {
 		make {
-			functionName 	=> $/<funcName>[0].Str,
+			functionName 	=> $/<funcName>.Str,
 			returnType 		=> $/<returnType>.made,
 			params			=> @!params
 		}
@@ -46,11 +58,10 @@ class grammarActions {
 	method returnType($/) {
 		my $tp = $/<typePrefix>.defined ?? $/<typePrefix>.made !! '';
 		make {
-			ctype 	=> $/[0].Str,
-			type 	=> $tp ~ self!typeConv($/[0]),
-			stars	=> ($/[1] // '').Str
+			ctype 	=> $/<typeName>.Str,
+			type 	=> $tp ~ self!typeConv($/<typeName>.Str),
+			stars	=> $/<stars>.Str
 		}
-		
 	}
 
 	method typePrefix($/) {
@@ -71,12 +82,14 @@ class grammarActions {
 
 	method params($/) {
 		my $tp = $/<typePrefix>.defined ?? $/<typePrefix>.made !! '';
+		my $stars = $/<stars>.map({ $_.Str }).join('');
+		my $ctype = ($/<typeName> // '').Str;
 
 		push @!params, {
-			ctype 	=> ($/[0] // '').Str,
-			type 	=> $tp ~ self!typeConv($/[0]),
-			name 	=> ($/[2] // '').Str,
-			stars 	=> ($/[1] // '').Str,
+			ctype 	=> $ctype,
+			type 	=> $tp ~ self!typeConv($ctype),
+			name 	=> ($/[0] // '').Str,
+			stars 	=> $stars,
 		}
 	}
 
@@ -92,7 +105,7 @@ class grammarActions {
 				S/Ptr$//;
 			}
 
-			when /Function$/ {
+			when /Function$/ || /FILE$/ {
 				'Pointer';
 			}
 
@@ -232,7 +245,7 @@ sub MAIN($filename) {
 		if $t.defined {
 			push @functions, $t.made;
 		} else {
-			note "=== $filename ===\nPotential missed parsing:\n'{ $m[0] }'";
+			note "=== $filename ===\nPotential missed parsing:\n{ $m[0] }";
 		}
 	}
 
