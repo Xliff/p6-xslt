@@ -186,8 +186,7 @@ sub writeStub($f) {
 	}
 	say qq:to/HERE/;
 		sub { $f<functionName> }($argsList) \{
-			die 'Function requires XML::LibXML'
-				unless \$XSLT_xml_support;
+			die 'Function requires XML::LibXML' unless \$XSLT_xml_support;
 
 			sub _{ $f<functionName> }({ @fullArgsList.join(', ') }) 
 				is native(XSLT)
