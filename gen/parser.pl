@@ -15,7 +15,7 @@ grammar XSLTFuncDef {
 	token wso 	{ [ \s ]* }
 
 	token returnType {
-		[<typePrefix> <ws>]? (\w+)
+		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
 	}
 
 	token funcName {
@@ -27,7 +27,7 @@ grammar XSLTFuncDef {
 	}
 
 	token params {
-		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? (\w+)] [ ',' <ws> ]? 
+		[<typePrefix> <ws>]? (\w+) <ws> [('*'+)? (\w+)] [ ',' <ws> ]? 
 	}
 }
 
@@ -46,7 +46,8 @@ class grammarActions {
 		my $tp = $/<typePrefix>.defined ?? $/<typePrefix>.made !! '';
 		make {
 			ctype 	=> $/[0].Str,
-			type 	=> $tp ~ self!typeConv($/[0])
+			type 	=> $tp ~ self!typeConv($/[0]),
+			stars	=> ($/[1] // '').Str
 		}
 		
 	}
@@ -113,13 +114,34 @@ class grammarActions {
 	}
 }
 
+sub resolveReturnType($r) {
+	do given $r<type> {
+		when 'void' {
+			given $r<stars> {
+				when .chars > 0 {
+					'Pointer';
+				}
+
+				default {
+					''
+				}
+			}
+		}
+
+		default {
+			$_
+		}
+	};
+}
+
 sub writeStub($f) {
 	my $argsList = $f<params>.map({ '$' ~ $_<name>}).join(', ');
 	my $fullArgsList = $f<params>.map({ 
-		$_<type> ~ ' ' ~ '$' ~ $_<name>
+		($_<type> eq 'void' ?? 'Pointer' !! $_<type>) ~ 
+		' ' ~ 
+		'$' ~ $_<name>
 	}).join(', ');
-	my $returns = $f<returnType><type> ne 'void' ??
-		$f<returnType><type> !! '';
+	my $returns = resolveReturnType($f<returnType>);
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
 		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
@@ -145,16 +167,16 @@ sub writeNC($f) {
 	my $fullArgsList = $f<params>.map({ 
 		$_<type> ~ ' ' ~ '$' ~ $_<name>
 	}).join(', ');
-	my $returns = $f<returnType><type> ne 'void' ??
-		$f<returnType><type> !! '';
+	my $returns = resolveReturnType($f<returnType>);
 
 	for $f<params>.grep({ $_<stars>.chars > 2 }) -> $ca {
 		say "\t# Potential CArray ({ $ca<stars>.chars - 1 })";
 	}
+
 	say qq:to/NC/;
 		sub { $f<functionName> }($fullArgsList) 
 			is native(XSLT)
-			is export{$returns.chars ?? "\n\t\t\treturns $returns" !! ''}
+			is export{$returns.chars ?? "\n\t\treturns $returns" !! ''}
 		\{ \* \};
 	NC
 }
@@ -172,7 +194,7 @@ sub MAIN($filename) {
 		if $t.defined {
 			push @functions, $t.made;
 		} else {
-			warn "Potential missed parsing:\n'{ $m[0] }'";
+			note "=== $filename ===\nPotential missed parsing:\n'{ $m[0] }'";
 		}
 	}
 
