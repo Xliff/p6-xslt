@@ -5,14 +5,14 @@ use v6.c;
 grammar XSLTFuncDef {
 	token TOP { 
 		'XSLTPUBFUN' <ws>
-		<returnType> <ws>
+		<returnType> <wso>
 		'XSLTCALL' <ws>
 		<funcName> <wso>
 		'(' ( <params>* ) ');' 
 	}
 
-	token ws 	{ [ \s ]+ }
-	token wso 	{ [ \s ]* }
+	token ws 	{ [ \s || \n ]+ }
+	token wso 	{ [ \s || \n ]* }
 
 	token returnType {
 		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
@@ -27,7 +27,7 @@ grammar XSLTFuncDef {
 	}
 
 	token params {
-		[<typePrefix> <ws>]? (\w+) <ws> [('*'+)? (\w+)] [ ',' <ws> ]? 
+		[<typePrefix> <ws>]? (\w+) ' ' [('*'+)? <wso> (\w+)] [ ',' <ws> ]? 
 	}
 }
 
@@ -85,6 +85,10 @@ class grammarActions {
 		do given $t {
 			when /Ptr$/ {
 				S/Ptr$//;
+			}
+
+			when /Function$/ {
+				'Pointer';
 			}
 
 			when /Cha?r/ {

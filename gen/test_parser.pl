@@ -5,7 +5,7 @@ use Grammar::Tracer;
 grammar XSLTFuncDef {
 	token TOP { 
 		'XSLTPUBFUN' <ws>
-		<returnType> <ws>
+		<returnType> <wso>
 		'XSLTCALL' <ws>
 		<funcName> <wso>
 		'(' ( <params>* ) ');' 
@@ -15,7 +15,7 @@ grammar XSLTFuncDef {
 	token wso 	{ [ \s ]* }
 
 	token returnType {
-		[<typePrefix> <ws>]? (\w+) <wso> (\*+)
+		[<typePrefix> <ws>]? (\w+) <wso> (\* *)
 	}
 
 	token funcName {
@@ -161,15 +161,15 @@ sub writeNC($f) {
 
 sub MAIN {
 	
-	my $text = "XSLTPUBFUN int XSLTCALL
-                xsltRegisterExtModuleFull
-                                        (const xmlChar * URI,
-                                         xsltExtInitFunction initFunc,
-                                         xsltExtShutdownFunction shutdownFunc,
-                                         xsltStyleExtInitFunction styleInitFunc,
-                                         xsltStyleExtShutdownFunction styleShutdownFunc);";
+  my $text = "XSLTPUBFUN int XSLTCALL
+                 xsltRegisterExtModuleFull
+                                         (const xmlChar * URI,
+                                          xsltExtInitFunction initFunc,
+                                          xsltExtShutdownFunction shutdownFunc,
+                                          xsltStyleExtInitFunction styleInitFunc,
+                                          xsltStyleExtShutdownFunction styleShutdownFunc);";
 
-	
+	say "==== Testing ====\n$text\n{ '=' x 25 }";
 	my $t = XSLTFuncDef.parse($text, actions => grammarActions.new);
 	say $t;
 	my $r = $t.made;
