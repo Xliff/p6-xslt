@@ -1501,6 +1501,324 @@ module XSLT::LibXSLT::Subs {
 		is export
 	{ * };
 
+	#
+	# /usr/include/libxslt/xsltInternals.h
+	#
+
+	sub xsltPointerListCreate(int32 $initialSize) 
+		is native(XSLT)
+		is export
+		returns xsltPointerList
+	{ * };
+
+	sub xsltPointerListFree(xsltPointerList $list) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltPointerListClear(xsltPointerList $list) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltPointerListAddSize(xsltPointerList $list, Pointer $item, int32 $initialSize) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltNewStylesheet() 
+		is native(XSLT)
+		is export
+		returns xsltStylesheet
+	{ * };
+
+	sub xsltParseStylesheetFile(Str $filename) 
+		is native(XSLT)
+		is export
+		returns xsltStylesheet
+	{ * };
+
+	sub xsltFreeStylesheet(xsltStylesheet $style) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltIsBlank(Str $str) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltFreeStackElemList(xsltStackElem $elem) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltDecimalFormatGetByName(xsltStylesheet $style, Str $name) 
+		is native(XSLT)
+		is export
+		returns xsltDecimalFormat
+	{ * };
+
+	sub xsltParseStylesheetProcess($ret, $doc) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltParseStylesheetProcess(xsltStylesheet $ret, xmlDoc $doc) 
+			is native(XSLT)
+			is symbol('xsltParseStylesheetProcess')
+			returns xsltStylesheet
+		{ * };
+
+		_xsltParseStylesheetProcess($ret, $doc);
+	}
+
+	sub xsltParseStylesheetOutput($style, $cur) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltParseStylesheetOutput(xsltStylesheet $style, xmlNode $cur) 
+			is native(XSLT)
+			is symbol('xsltParseStylesheetOutput')
+		{ * };
+
+		_xsltParseStylesheetOutput($style, $cur);
+	}
+
+	sub xsltParseStylesheetDoc($doc) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltParseStylesheetDoc(xmlDoc $doc) 
+			is native(XSLT)
+			is symbol('xsltParseStylesheetDoc')
+			returns xsltStylesheet
+		{ * };
+
+		_xsltParseStylesheetDoc($doc);
+	}
+
+	sub xsltParseStylesheetImportedDoc($doc, $style) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltParseStylesheetImportedDoc(xmlDoc $doc, xsltStylesheet $style) 
+			is native(XSLT)
+			is symbol('xsltParseStylesheetImportedDoc')
+			returns xsltStylesheet
+		{ * };
+
+		_xsltParseStylesheetImportedDoc($doc, $style);
+	}
+
+	sub xsltLoadStylesheetPI($doc) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltLoadStylesheetPI(xmlDoc $doc) 
+			is native(XSLT)
+			is symbol('xsltLoadStylesheetPI')
+			returns xsltStylesheet
+		{ * };
+
+		_xsltLoadStylesheetPI($doc);
+	}
+
+	sub xsltNumberFormat($ctxt, $data, $node) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltNumberFormat(xsltTransformContext $ctxt, xsltNumberData $data, xmlNode $node) 
+			is native(XSLT)
+			is symbol('xsltNumberFormat')
+		{ * };
+
+		_xsltNumberFormat($ctxt, $data, $node);
+	}
+
+	# cw: Return value should be converted to xmlXPathError enum.
+	sub xsltFormatNumberConversion(xsltDecimalFormat $self, Str $format, num64 $number, CArray[Str] $result) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltParseTemplateContent($style, $templ) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltParseTemplateContent(xsltStylesheet $style, xmlNode $templ) 
+			is native(XSLT)
+			is symbol('xsltParseTemplateContent')
+		{ * };
+
+		_xsltParseTemplateContent($style, $templ);
+	}
+
+	sub xsltAllocateExtra(xsltStylesheet $style) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltAllocateExtraCtxt(xsltTransformContext $ctxt) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltCreateRVT(xsltTransformContext $ctxt) 
+		is native(XSLT)
+		is export
+		returns xmlDoc
+	{ * };
+
+	sub xsltRegisterTmpRVT($ctxt, $RVT) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltRegisterTmpRVT(xsltTransformContext $ctxt, xmlDoc $RVT) 
+			is native(XSLT)
+			is symbol('xsltRegisterTmpRVT')
+			returns int32
+		{ * };
+
+		_xsltRegisterTmpRVT($ctxt, $RVT);
+	}
+
+	sub xsltRegisterLocalRVT($ctxt, $RVT) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltRegisterLocalRVT(xsltTransformContext $ctxt, xmlDoc $RVT) 
+			is native(XSLT)
+			is symbol('xsltRegisterLocalRVT')
+			returns int32
+		{ * };
+
+		_xsltRegisterLocalRVT($ctxt, $RVT);
+	}
+
+	sub xsltRegisterPersistRVT($ctxt, $RVT) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltRegisterPersistRVT(xsltTransformContext $ctxt, xmlDoc $RVT) 
+			is native(XSLT)
+			is symbol('xsltRegisterPersistRVT')
+			returns int32
+		{ * };
+
+		_xsltRegisterPersistRVT($ctxt, $RVT);
+	}
+
+	sub xsltExtensionInstructionResultRegister($ctxt, $obj) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltExtensionInstructionResultRegister(xsltTransformContext $ctxt, xmlXPathObject $obj) 
+			is native(XSLT)
+			is symbol('xsltExtensionInstructionResultRegister')
+			returns int32
+		{ * };
+
+		_xsltExtensionInstructionResultRegister($ctxt, $obj);
+	}
+
+	sub xsltExtensionInstructionResultFinalize(xsltTransformContext $ctxt) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltFreeRVTs(xsltTransformContext $ctxt) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltReleaseRVT($ctxt, $RVT) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltReleaseRVT(xsltTransformContext $ctxt, xmlDoc $RVT) 
+			is native(XSLT)
+			is symbol('xsltReleaseRVT')
+		{ * };
+
+		_xsltReleaseRVT($ctxt, $RVT);
+	}
+
+	sub xsltCompileAttr($style, $attr) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltCompileAttr(xsltStylesheet $style, xmlAttr $attr) 
+			is native(XSLT)
+			is symbol('xsltCompileAttr')
+		{ * };
+
+		_xsltCompileAttr($style, $attr);
+	}
+
+	sub xsltEvalAVT($ctxt, $avt, $node) {
+		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+		sub _xsltEvalAVT(xsltTransformContext $ctxt, Pointer $avt, xmlNode $node) 
+			is native(XSLT)
+			is symbol('xsltEvalAVT')
+			returns Str
+		{ * };
+
+		_xsltEvalAVT($ctxt, $avt, $node);
+	}
+
+	sub xsltFreeAVTList(Pointer $avt) 
+		is native(XSLT)
+		is export
+	{ * };
+
+	sub xsltUninit() 
+		is native(XSLT)
+		is export
+	{ * };
+
+	# cw: Part of XSLT refactor, which is not included.
+	#
+	# sub xsltParseSequenceConstructor($cctxt, $start) {
+	# 	die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+	# 	sub _xsltParseSequenceConstructor(xsltCompilerCtxt $cctxt, xmlNode $start) 
+	# 		is native(XSLT)
+	# 		is symbol('xsltParseSequenceConstructor')
+	# 	{ * };
+
+	# 	_xsltParseSequenceConstructor($cctxt, $start);
+	# }
+
+	# sub xsltParseAnyXSLTElem($cctxt, $elem) {
+	# 	die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+	# 	sub _xsltParseAnyXSLTElem(xsltCompilerCtxt $cctxt, xmlNode $elem) 
+	# 		is native(XSLT)
+	# 		is symbol('xsltParseAnyXSLTElem')
+	# 		returns int32
+	# 	{ * };
+
+	# 	_xsltParseAnyXSLTElem($cctxt, $elem);
+	# }
+
+	# sub xsltRestoreDocumentNamespaces($ns, $doc) {
+	# 	die 'Function requires XML::LibXML' unless $XSLT_xml_support;
+
+	# 	sub _xsltRestoreDocumentNamespaces(xsltNsMap $ns, xmlDoc $doc) 
+	# 		is native(XSLT)
+	# 		is symbol('xsltRestoreDocumentNamespaces')
+	# 		returns int32
+	# 	{ * };
+
+	# 	_xsltRestoreDocumentNamespaces($ns, $doc);
+	# }
+
+	sub xsltInitCtxtKey(xsltTransformContext $ctxt, xsltDocument $doc, xsltKeyDef $keyd) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
+	sub xsltInitAllDocKeys(xsltTransformContext $ctxt) 
+		is native(XSLT)
+		is export
+		returns int32
+	{ * };
+
 
 	# xsltutils
 	enum xsltDebugTraceCodes is export (

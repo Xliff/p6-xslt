@@ -249,7 +249,7 @@ module XML::LibXSLT::Types {
 		has int32			$.templCountTab;
 	}
 
-	class xsltTransformCache is repr('CStruct') {
+	class xsltTransformCache is repr('CStruct') is export {
 		has xmlDoc 			$.RVT;
 		has int32 			$.nvRVT;
 		has xsltStackElem 	$.stackItems;
@@ -356,4 +356,179 @@ module XML::LibXSLT::Types {
 		has uint64 				$.nextid;
 	}
 
+	class xsltNumberData is repr('CStruct') is export {
+		has Str 				$.level;
+		has Str 				$.count;
+		has Str 				$.from;
+		has Str 				$.value;
+		has Str 				$.format;
+		has int32				$.has_format;
+		has int32 				$.digitsPerGroup;
+		has int32 				$.groupingCharacter;
+		has int32 				$.groupingCharacterLen;
+		has xmlDoc 				$.doc;
+		has xmlNode 			$.node;
+		# cw: Can't find a definition for xsltCompMatch, so we are limited to
+		#     Pointer.
+		has Pointer 			$.countPat;
+		has Pointer 	 		$.fromPat;
+	}
+
+	class xsltFormatNumberInfo is repr('CStruct') is export {
+		has int32				$.integer_hash;
+		has int32				$.integer_digits;
+		has int32				$.frac_digits;
+		has int32				$.frac_hash;
+		has int32				$.group;
+		has int32				$.multiplier;
+		has uint8 				$.add_decimal;
+		has uint8 				$.is_multiplier_set;
+		has uint8 				$.is_negative_pattern
+	}
+
+	class xsltNsList is repr('CStruct') is export {
+		has xsltNsList 			$.next;
+		has xmlNs 				$.ns;
+	}
+
+	class xsltVarInfo is repr('CStruct') is export {
+		has xsltVarInfo			$.next;
+		has xsltVarInfo			$.prev;
+		has int32 				$.depth;
+		has Str 				$.name;
+		has Str 				$.nsName;
+	}
+
+	class xsltEffectiveNs is repr('CStruct') is export {
+		has xsltEffectiveNs		$.nextInStore;
+		has xsltEffectiveNs 	$.next;
+		has Str 				$.prefix;
+		has Str 				$.nsName;
+		has int32 				$.holdByElem;
+	}
+
+	class xsltPointerList is repr('CStruct') is export {
+		has CArray[Pointer] 	$.items;
+		has int32				$.number;
+		has int32				$.size;
+	}
+
+	class xsltPrincipalStylesheetData is repr('CStruct') is export {
+		has xmlDict				$.namespaceDict;
+		has xsltPointerList 	$.inScopeNamespaces;
+		has xsltPointerList 	$.exclResultNamespaces;
+		has xsltPointerList 	$.extElemNamespaces;
+		has xsltEffectiveNs		$.effectiveNs;
+		# cw: Part of XSLT refactor, so not included.
+		#has xsltNsMap 			$.nsMap;
+	}
+
+	class xsltNsAlias is repr('CStruct') is export {
+		has xsltNsAlias 		$.next;
+		has xmlNs 				$.literalNs;
+		has xmlNs 				$.targetNs;
+		has xmlDoc 				$.docOfTargetNs;
+	}
+
+	class xsltNsListContainer is repr('CStruct') is export {
+		has xmlNs 				$.list;
+		has int32				$.totalNumber;
+		has int32 				$.xpathNumber;
+	}
+
+	class xsltStyleItemLRElementInfo is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has xsltEffectiveNs		$.effectiveNs;
+
+		method enum_type {
+			xsltStyleType($.type);
+		}
+	}
+
+	class xsltStyleItemUknown is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		method enum_type {
+			xsltStyleType($.type);
+		}
+	}
+
+	enum xsltErrorSeverityType is export (
+		XSLT_ERROR_SEVERITY_ERROR => 0,
+    	'XSLT_ERROR_SEVERITY_WARNING'
+	);
+
+	class xsltCompilerNodeInfo is repr('CStruct') is export {
+		has xsltCompilerNodeInfo 		$.next;
+		has xsltCompilerNodeInfo 		$.prev;
+		has xmlNode 					$.node;
+		has int32 						$.depth;
+		has xsltTemplate 				$.templ;
+		has int32 						$.category;
+		# cw; Convert to xslStyleType Enum
+		has int32 						$.type;
+		has xsltElemPreComp				$.item;
+		has xsltNsListContainer 		$.inScopeNs;
+		has xsltPointerList 			$.exclResultNs;
+		has xsltPointerList 			$.extElemNs;
+		has xsltStyleItemLRElementInfo	$.litResElemInfo;
+		has int32 						$.nsChanged;
+		has int32 						$.preservedWhitespace;
+		has int32 						$.isRoot;
+		has int32 						$.forwardsCompat;
+		has int32 						$.extContentHandled;
+		# cw; Convert to xslStyleType Enum
+		has int32 						$.curChildType;
+
+		method enum_curChildType {
+			xsltStyleType($.curChildType);
+		}
+
+		method enum_type {
+			xsltStyleType($.type);
+		}
+	}
+
+	# XXX-XXX-XXX
+	#
+	# cw: This is probably the REFACTORED definition of xsltCompilerCtxt.
+	#     will need to check and redefine if so!
+	class xsltCompilerCtxt is repr('CStruct') is export {
+		has Pointer 					$.errorCtxt;
+		has int32						$.errSeverity;
+		has int32						$.warnings;
+		has int32						$.errors;
+		has xmlDict 					$.dict;
+		has xsltStylesheet				$.style;
+		has int32						$.simplified;
+		has int32 						$.depth;
+		has xsltCompilerNodeInfo		$.inode;
+		has xsltCompilerNodeInfo		$.inodeList;
+		has xsltCompilerNodeInfo		$.inodeLast;
+		has xsltPointerList 			$.tmpList;
+		has int32						$.isInclude;
+		has int32						$.hasFowardsCompat;
+		has int32						$.maxNodeInfos;
+		has int32						$.maxLREs;
+		has int32						$.strict;
+		has xsltPrincipalStylesheetData	$.psData;
+		#has xmlXPathContext 			$.xpathCtxt;
+		has xsltStyleItemUknown			$.unknownItem;
+		has int32						$.hasNsAliases;
+		has xsltNsAlias					$.nsAliases;
+		has xsltVarInfo 				$.ivars;
+		has xsltVarInfo 				$.ivar;
+	}
+	
 }
