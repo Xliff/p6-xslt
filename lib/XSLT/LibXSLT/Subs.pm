@@ -1476,21 +1476,21 @@ module XSLT::LibXSLT::Subs {
 	sub xsltNewLocale(Str $langName) 
 		is native(XSLT)
 		is export
-		returns xsltLocale
+		returns Pointer
 	{ * };
 
-	sub xsltFreeLocale(xsltLocale $locale) 
+	sub xsltFreeLocale(Pointer $locale) 
 		is native(XSLT)
 		is export
 	{ * };
 
-	sub xsltStrxfrm(xsltLocale $locale, Str $string) 
+	sub xsltStrxfrm(Pointer $locale, Str $string) 
 		is native(XSLT)
 		is export
 		returns Str
 	{ * };
 
-	sub xsltLocaleStrcmp(xsltLocale $locale, Str $str1, Str $str2) 
+	sub xsltLocaleStrcmp(Pointer $locale, Str $str1, Str $str2) 
 		is native(XSLT)
 		is export
 		returns int32
