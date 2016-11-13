@@ -114,7 +114,7 @@ module XSLT::LibXSLT::Subs {
 		is export
 	{ * };
 
-	sub xsltSetLoaderFunc(xsltDocLoaderFunc $f) 
+	sub xsltSetLoaderFunc(Pointer $f) 
 		is native(XSLT)
 		is export
 	{ * };
@@ -219,7 +219,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltInitElemPreComp($comp, $style, $inst, $function, $freeFunc) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltInitElemPreComp(xsltElemPreComp $comp, xsltStylesheet $style, xmlNode $inst, Pointer $function, xsltElemPreCompDeallocator $freeFunc) 
+		sub _xsltInitElemPreComp(xsltElemPreComp $comp, xsltStylesheet $style, xmlNode $inst, Pointer $function, Pointer $freeFunc) 
 			is native(XSLT)
 			is symbol('xsltInitElemPreComp')
 		{ * };
@@ -697,13 +697,13 @@ module XSLT::LibXSLT::Subs {
 		sub _xsltCompilePattern(Str $pattern, xmlDoc $doc, xmlNode $node, xsltStylesheet $style, xsltTransformContext $runtime) 
 			is native(XSLT)
 			is symbol('xsltCompilePattern')
-			returns xsltCompMatch
+			returns Pointer
 		{ * };
 
 		_xsltCompilePattern($pattern, $doc, $node, $style, $runtime);
 	}
 
-	sub xsltFreeCompMatchList(xsltCompMatch $comp) 
+	sub xsltFreeCompMatchList(Pointer $comp) 
 		is native(XSLT)
 		is export
 	{ * };
@@ -711,7 +711,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltTestCompMatchList($ctxt, $node, $comp) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltTestCompMatchList(xsltTransformContext $ctxt, xmlNode $node, xsltCompMatch $comp) 
+		sub _xsltTestCompMatchList(xsltTransformContext $ctxt, xmlNode $node, Pointer $comp) 
 			is native(XSLT)
 			is symbol('xsltTestCompMatchList')
 			returns int32
@@ -720,7 +720,7 @@ module XSLT::LibXSLT::Subs {
 		_xsltTestCompMatchList($ctxt, $node, $comp);
 	}
 
-	sub xsltNormalizeCompSteps( $payload,  $data, Str $name) 
+	sub xsltNormalizeCompSteps(Pointer $payload, Pointer $data, Str $name) 
 		is native(XSLT)
 		is export
 	{ * };
@@ -790,7 +790,7 @@ module XSLT::LibXSLT::Subs {
 	#
 
 	enum xsltSecurityOption is export (
-	    XSLT_SECPREF_READ_FILE 		=> 1,
+	    XSLT_SECPREF_READ_FILE => 1,
 	    'XSLT_SECPREF_WRITE_FILE',
 	    'XSLT_SECPREF_CREATE_DIRECTORY',
 	    'XSLT_SECPREF_READ_NETWORK',
@@ -800,27 +800,27 @@ module XSLT::LibXSLT::Subs {
 	sub xsltNewSecurityPrefs() 
 		is native(XSLT)
 		is export
-		returns xsltSecurityPrefs
+		returns Pointer
 	{ * };
 
-	sub xsltFreeSecurityPrefs(xsltSecurityPrefs $sec) 
+	sub xsltFreeSecurityPrefs(Pointer $sec) 
 		is native(XSLT)
 		is export
 	{ * };
 
-	sub xsltSetSecurityPrefs(xsltSecurityPrefs $sec, xsltSecurityOption $option, xsltSecurityCheck $func) 
+	sub xsltSetSecurityPrefs(Pointer $sec, int32 $option, Pointer $func) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltGetSecurityPrefs(xsltSecurityPrefs $sec, xsltSecurityOption $option) 
+	sub xsltGetSecurityPrefs(Pointer $sec, int32 $option) 
 		is native(XSLT)
 		is export
-		returns xsltSecurityCheck
+		returns Pointer
 	{ * };
 
-	sub xsltSetDefaultSecurityPrefs(xsltSecurityPrefs $sec) 
+	sub xsltSetDefaultSecurityPrefs(Pointer $sec) 
 		is native(XSLT)
 		is export
 	{ * };
@@ -828,34 +828,34 @@ module XSLT::LibXSLT::Subs {
 	sub xsltGetDefaultSecurityPrefs() 
 		is native(XSLT)
 		is export
-		returns xsltSecurityPrefs
+		returns Pointer
 	{ * };
 
-	sub xsltSetCtxtSecurityPrefs(xsltSecurityPrefs $sec, xsltTransformContext $ctxt) 
+	sub xsltSetCtxtSecurityPrefs(Pointer $sec, xsltTransformContext $ctxt) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltSecurityAllow(xsltSecurityPrefs $sec, xsltTransformContext $ctxt, char $value) 
+	sub xsltSecurityAllow(Pointer $sec, xsltTransformContext $ctxt, Str $value) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltSecurityForbid(xsltSecurityPrefs $sec, xsltTransformContext $ctxt, char $value) 
+	sub xsltSecurityForbid(Pointer $sec, xsltTransformContext $ctxt, Str $value) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltCheckWrite(xsltSecurityPrefs $sec, xsltTransformContext $ctxt, Str $URL) 
+	sub xsltCheckWrite(Pointer $sec, xsltTransformContext $ctxt, Str $URL) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltCheckRead(xsltSecurityPrefs $sec, xsltTransformContext $ctxt, Str $URL) 
+	sub xsltCheckRead(Pointer $sec, xsltTransformContext $ctxt, Str $URL) 
 		is native(XSLT)
 		is export
 		returns int32
@@ -1026,7 +1026,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltApplyStylesheetUser($style, $doc, $params, $output, $profile, $userCtxt) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltApplyStylesheetUser(xsltStylesheet $style, xmlDoc $doc, CArray[char] $params, char $output, Pointer $profile, xsltTransformContext $userCtxt) 
+		sub _xsltApplyStylesheetUser(xsltStylesheet $style, xmlDoc $doc, CArray[Str] $params, Str $output, Pointer $profile, xsltTransformContext $userCtxt) 
 			is native(XSLT)
 			is symbol('xsltApplyStylesheetUser')
 			returns xmlDoc
@@ -1060,7 +1060,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltApplyStylesheet($style, $doc, $params) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltApplyStylesheet(xsltStylesheet $style, xmlDoc $doc, CArray[char] $params) 
+		sub _xsltApplyStylesheet(xsltStylesheet $style, xmlDoc $doc, Str $params) 
 			is native(XSLT)
 			is symbol('xsltApplyStylesheet')
 			returns xmlDoc
@@ -1072,7 +1072,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltProfileStylesheet($style, $doc, $params, $output) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltProfileStylesheet(xsltStylesheet $style, xmlDoc $doc, CArray[char] $params, Pointer $output) 
+		sub _xsltProfileStylesheet(xsltStylesheet $style, xmlDoc $doc, Str $params, Pointer $output) 
 			is native(XSLT)
 			is symbol('xsltProfileStylesheet')
 			returns xmlDoc
@@ -1084,7 +1084,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltRunStylesheet($style, $doc, $params, $output, $SAX, $IObuf) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltRunStylesheet(xsltStylesheet $style, xmlDoc $doc, CArray[char] $params, char $output, xmlSAXHandler $SAX, xmlOutputBuffer $IObuf) 
+		sub _xsltRunStylesheet(xsltStylesheet $style, xmlDoc $doc, Str $params, Str $output, xmlSAXHandler $SAX, xmlOutputBuffer $IObuf) 
 			is native(XSLT)
 			is symbol('xsltRunStylesheet')
 			returns int32
@@ -1096,7 +1096,7 @@ module XSLT::LibXSLT::Subs {
 	sub xsltRunStylesheetUser($style, $doc, $params, $output, $SAX, $IObuf, $profile, $userCtxt) {
 		die 'Function requires XML::LibXML' unless $XSLT_xml_support;
 
-		sub _xsltRunStylesheetUser(xsltStylesheet $style, xmlDoc $doc, CArray[char] $params, char $output, xmlSAXHandler $SAX, xmlOutputBuffer $IObuf, Pointer $profile, xsltTransformContext $userCtxt) 
+		sub _xsltRunStylesheetUser(xsltStylesheet $style, xmlDoc $doc, Str $params, Str $output, xmlSAXHandler $SAX, xmlOutputBuffer $IObuf, Pointer $profile, xsltTransformContext $userCtxt) 
 			is native(XSLT)
 			is symbol('xsltRunStylesheetUser')
 			returns int32
@@ -1352,13 +1352,13 @@ module XSLT::LibXSLT::Subs {
 		returns int32
 	{ * };
 
-	sub xsltEvalUserParams(xsltTransformContext $ctxt, CArray[char] $params) 
+	sub xsltEvalUserParams(xsltTransformContext $ctxt, Str $params) 
 		is native(XSLT)
 		is export
 		returns int32
 	{ * };
 
-	sub xsltQuoteUserParams(xsltTransformContext $ctxt, CArray[char] $params) 
+	sub xsltQuoteUserParams(xsltTransformContext $ctxt, Str $params) 
 		is native(XSLT)
 		is export
 		returns int32
@@ -1449,7 +1449,7 @@ module XSLT::LibXSLT::Subs {
 		returns xmlXPathObject
 	{ * };
 
-	sub xsltXPathVariableLookup( $ctxt, Str $name, Str $ns_uri) 
+	sub xsltXPathVariableLookup(Pointer $ctxt, Str $name, Str $ns_uri) 
 		is native(XSLT)
 		is export
 		returns xmlXPathObject

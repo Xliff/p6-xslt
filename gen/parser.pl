@@ -105,11 +105,11 @@ class grammarActions {
 				S/Ptr$//;
 			}
 
-			when /Function$/ || /FILE$/ {
+			when /Function$/ || /FILE$/ || 'xsltCompMatch' {
 				'Pointer';
 			}
 
-			when /Cha?r/ {
+			when m:i/Cha?r/ {
 				'Str';
 			}
 

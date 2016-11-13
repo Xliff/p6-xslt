@@ -11,6 +11,7 @@ our $XSLT_xml_support is export;
 if $XSLT_xml_support {
 	require XML::LibXML::CStructs;
 } else {
+	class xmlAttr 			is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlNode 			is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlNodeSet		is repr('CStruct')  { has int32 $.dummy; }
 	class xmlNs   			is repr('CStruct')	{ has int32 $.dummy; }
@@ -19,7 +20,11 @@ if $XSLT_xml_support {
 	class xmlHashTable		is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlXPathContext	is repr('CStruct')  { has int32 $.dummy; }
 	class xmlXPathObject 	is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlXPathCompExpr	is repr('CStruct')	{ has int32 $.dummy; }
 	class xmlOutputBuffer	is repr('CStruct')	{ has int32 $.dummy; }
+	class xmlSAXHandler		is repr('CStruct')	{ has int32 $.dummy; }
+
+	class xmlXPathParserContext is repr('CStruct') { has int32 $.dummy; }
 }
 
 # libxslt predefines.
