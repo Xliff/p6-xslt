@@ -446,7 +446,98 @@ module XML::LibXSLT::Types {
 
 		has xsltEffectiveNs		$.effectiveNs;
 
-		method enum_type {
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+	}
+
+	class xsltStyleBasicEmptyItem is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+	}
+
+	constant xsltStyleItemComment 		:= xsltStyleBasicEmptyItem;
+	constant xsltStyleItemApplyImports 	:= xsltStyleBasicEmptyItem;
+
+	class xsltStyleBasicExpressionItem is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has Str 				$.select;
+		has xmlXPathCompExpr 	$.comp;
+
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+
+		# From TODO in xsltInternals.h
+		method expression 		{ $.select; }
+		method compExpr 		{ $.comp;   }
+	}
+
+	class xsltStyleItemElement is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has Str 				$.use;
+		has int32 				$.has_use;
+		has Str 				$.name;
+		has int32 				$.has_name;
+		has Str 				$.ns;
+		has Str 				$.nsPrefix;
+		has int32 				$.has_ns;
+
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+	}
+
+	class xsltStyleItemAttribute is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has Str 				$.name;
+		has int32 				$.has_name;
+		has Str 				$.ns;
+		has Str 				$.nsPrefix;
+		has int32 				$.has_ns;
+
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+	}
+
+	class xsltStyleItemText is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has int32 				$.noescape;
+
+		method typeEnum {
 			xsltStyleType($.type);
 		}
 	}
@@ -459,9 +550,32 @@ module XML::LibXSLT::Types {
 		has xmlNode 			$.inst;
 		has xsltNsListContainer $.inScopeNs;
 
-		method enum_type {
+		method typeEnum {
 			xsltStyleType($.type);
 		}
+	}
+
+	class xsltStyleItemPI is repr('CStruct') is export {
+		# cw: XSLT ITEM COMMON FIELDS
+		has xsltElemPreComp		$.next;
+		has int32 				$.type;
+		has Pointer 			$.func;
+		has xmlNode 			$.inst;
+		has xsltNsListContainer $.inScopeNs;
+
+		has Str 				$.name;
+		has int32 				$.has_name;
+
+		method typeEnum {
+			xsltStyleType($.type);
+		}
+	}
+
+	class xsltKeyTable is repr('CStruct') is export {	
+		has xsltKeyTable 		$.next;
+		has Str 				$.name;
+		has Str 				$.nameURI;
+		has xmlHashTable 		$.keys;
 	}
 
 	class xsltKeyDef is repr('CStruct') is export {
@@ -508,7 +622,7 @@ module XML::LibXSLT::Types {
 			xsltStyleType($.curChildType);
 		}
 
-		method enum_type {
+		method typeEnum {
 			xsltStyleType($.type);
 		}
 	}
