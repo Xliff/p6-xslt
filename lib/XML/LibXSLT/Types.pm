@@ -464,6 +464,19 @@ module XML::LibXSLT::Types {
 		}
 	}
 
+	class xsltKeyDef is repr('CStruct') is export {
+		has xsltKeyDef			$.next;
+		has xmlNode 			$.inst;
+		has Str 				$.name;
+		has Str 				$.nameURI;
+		has Str 				$.match;
+		has Str 				$.use;
+		has xmlXPathCompExpr	$.comp;
+		has xmlXPathCompExpr	$.usecomp;
+		has xmlNs 				$.nsList;
+		has int32				$.nsNr;
+	}
+
 	enum xsltErrorSeverityType is export (
 		XSLT_ERROR_SEVERITY_ERROR => 0,
     	'XSLT_ERROR_SEVERITY_WARNING'
